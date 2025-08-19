@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Tracking - Pitch Presentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .slide {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .control-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .control-btn:hover {
+            background: rgba(16, 185, 129, 0.8);
+            transform: scale(1.15);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            position: relative;
+        }
+        
+        .tech-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #1e40af 100%);
+            position: relative;
+        }
+        
+        .success-bg {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            position: relative;
+        }
+        
+        .warning-bg {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            position: relative;
+        }
+        
+        .premium-bg {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+            position: relative;
+        }
+        
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-15px) rotate(1deg); }
+            66% { transform: translateY(-5px) rotate(-1deg); }
+        }
+        
+        .animate-pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+                transform: scale(1.02);
+            }
+        }
+        
+        .stats-counter {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #10b981, #34d399);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: countUp 2s ease-out;
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .icon-hover {
+            transition: all 0.3s ease;
+        }
+
+        .icon-hover:hover {
+            transform: scale(1.1) rotate(5deg);
+            color: #34d399;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .slide-enter {
+            animation: slideEnter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideEnter {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .title-shadow {
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 0 40px rgba(255,255,255,0.1);
+        }
+
+        .benefit-number {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Particle background animation */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float-particle 6s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .premium-gradient {
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Particles Background -->
+    <div class="particles">
+        <div class="particle" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; width: 6px; height: 6px; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 30%; width: 3px; height: 3px; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 40%; width: 5px; height: 5px; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 50%; width: 4px; height: 4px; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 60%; width: 6px; height: 6px; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; width: 3px; height: 3px; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 80%; width: 5px; height: 5px; animation-delay: 7s;"></div>
+        <div class="particle" style="left: 90%; width: 4px; height: 4px; animation-delay: 8s;"></div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Slide Number -->
+    <div class="slide-number" id="slideNumber">1 / 7</div>
+
+    <!-- Slide 1: Título -->
+    <div class="slide active premium-gradient flex-col justify-center items-center text-center p-8">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="max-w-6xl w-full">
+                <div class="animate-float mb-8">
+                    <div class="relative inline-block">
+                        <i class="fas fa-leaf text-8xl lg:text-9xl text-white mb-6 icon-hover animate-pulse-glow"></i>
+                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full animate-ping"></div>
+                    </div>
+                </div>
+                <h1 class="text-6xl lg:text-8xl font-black mb-6 title-shadow text-glow">Easy Tracking</h1>
+                <div class="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                    <h2 class="text-3xl lg:text-5xl font-bold mb-8">Sistema de Rastreabilidade Alimentar</h2>
+                </div>
+                <p class="text-xl lg:text-2xl text-blue-100 leading-relaxed mb-8 max-w-4xl mx-auto">
+                    Revolucionando a segurança alimentar com tecnologia de ponta e compliance HACCP completo
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="glass-card px-6 py-3 font-bold text-lg">
+                        <i class="fas fa-shield-check mr-2 text-green-400"></i>
+                        Food Safety Technology
+                    </div>
+                    <div class="glass-card px-6 py-3 font-bold text-lg">
+                        <i class="fas fa-certificate mr-2 text-blue-400"></i>
+                        HACCP Compliant
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: O Problema -->
+    <div class="slide warning-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex flex-col justify-center">
+            <h1 class="text-5xl lg:text-6xl font-black mb-12 text-center title-shadow">
+                <i class="fas fa-exclamation-triangle mr-4 text-red-300 icon-hover"></i>
+                O PROBLEMA
+            </h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <div class="feature-card p-8 rounded-2xl relative">
+                    <div class="benefit-number">1</div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-red-500 bg-opacity-30 rounded-2xl flex items-center justify-center mr-6">
+                            <i class="fas fa-unlink text-3xl text-red-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-red-100">Falta de Rastreabilidade</h3>
+                    </div>
+                    <p class="text-lg leading-relaxed">48% das empresas alimentares não conseguem rastrear produtos em caso de recalls</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative">
+                    <div class="benefit-number">2</div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-red-500 bg-opacity-30 rounded-2xl flex items-center justify-center mr-6">
+                            <i class="fas fa-virus text-3xl text-red-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-red-100">Contaminação Alimentar</h3>
+                    </div>
+                    <p class="text-lg leading-relaxed">600 milhões de pessoas ficam doentes por alimentos contaminados anualmente</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative">
+                    <div class="benefit-number">3</div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-red-500 bg-opacity-30 rounded-2xl flex items-center justify-center mr-6">
+                            <i class="fas fa-money-bill-wave text-3xl text-red-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-red-100">Perdas Financeiras</h3>
+                    </div>
+                    <p class="text-lg leading-relaxed">US$ 110 bilhões perdidos globalmente por doenças transmitidas por alimentos</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative">
+                    <div class="benefit-number">4</div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-red-500 bg-opacity-30 rounded-2xl flex items-center justify-center mr-6">
+                            <i class="fas fa-gavel text-3xl text-red-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-red-100">Compliance Inadequado</h3>
+                    </div>
+                    <p class="text-lg leading-relaxed">70% das empresas falham em auditorias HACCP por falta de controle digital</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Nossa Solução -->
+    <div class="slide success-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-center">
+                <div>
+                    <h1 class="text-5xl lg:text-6xl font-black mb-8 text-center lg:text-left title-shadow">
+                        <i class="fas fa-lightbulb mr-4 text-yellow-300 icon-hover"></i>
+                        NOSSA SOLUÇÃO
+                    </h1>
+                    <div class="glass-card p-8 lg:p-10">
+                        <p class="text-2xl lg:text-3xl mb-8 leading-relaxed font-medium">
+                            Uma plataforma completa de rastreabilidade alimentar que garante segurança, compliance e qualidade do campo ao consumidor
+                        </p>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center group">
+                                <div class="bg-white bg-opacity-20 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                                    <i class="fas fa-qrcode text-3xl"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-1">QR Scanner</h3>
+                                <p class="text-sm opacity-80">Rastreamento instantâneo</p>
+                            </div>
+                            <div class="text-center group">
+                                <div class="bg-white bg-opacity-20 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                                    <i class="fas fa-thermometer-half text-3xl"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-1">Temp. Controle</h3>
+                                <p class="text-sm opacity-80">Monitoramento 24/7</p>
+                            </div>
+                            <div class="text-center group">
+                                <div class="bg-white bg-opacity-20 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                                    <i class="fas fa-shield-alt text-3xl"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-1">HACCP</h3>
+                                <p class="text-sm opacity-80">Compliance automático</p>
+                            </div>
+                            <div class="text-center group">
+                                <div class="bg-white bg-opacity-20 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                                    <i class="fas fa-chart-bar text-3xl"></i>
+                                </div>
+                                <h3 class="font-bold text-lg mb-1">Analytics</h3>
+                                <p class="text-sm opacity-80">Relatórios inteligentes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8ad55cdc-400b-4a7c-b158-d722800c37c0.png" alt="Complete food traceability platform showing digital dashboard with QR code scanning, temperature monitoring, HACCP compliance, and analytics in a modern interface" class="rounded-2xl shadow-2xl border-4 border-white border-opacity-20 animate-pulse-glow w-full max-w-lg" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Funcionalidades Principais -->
+    <div class="slide tech-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex flex-col justify-center">
+            <h1 class="text-5xl lg:text-6xl font-black mb-12 text-center title-shadow">
+                <i class="fas fa-cogs mr-4 text-blue-300 icon-hover"></i>
+                FUNCIONALIDADES
+            </h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">1</div>
+                    <div class="w-20 h-20 bg-blue-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-industry text-4xl text-blue-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Controle de Produção</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Gestão completa de lotes, estações de processo e direcionamento de produtos</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">2</div>
+                    <div class="w-20 h-20 bg-green-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-microscope text-4xl text-green-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Testes de Qualidade</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Análises microbiológicas, físico-químicas e sensoriais com resultados digitais</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">3</div>
+                    <div class="w-20 h-20 bg-purple-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-boxes text-4xl text-purple-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Gestão de Estoque</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Controle de validade, alérgenos, certificações e informações nutricionais</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">4</div>
+                    <div class="w-20 h-20 bg-cyan-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-snowflake text-4xl text-cyan-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Cadeia Fria</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Monitoramento de temperatura em tempo real com alertas automáticos</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">5</div>
+                    <div class="w-20 h-20 bg-yellow-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-route text-4xl text-yellow-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Rastreabilidade Total</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Do fornecedor ao consumidor final com QR codes e busca inteligente</p>
+                </div>
+                <div class="feature-card p-8 rounded-2xl text-center group relative">
+                    <div class="benefit-number">6</div>
+                    <div class="w-20 h-20 bg-pink-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-file-alt text-4xl text-pink-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors">Relatórios HACCP</h3>
+                    <p class="text-lg leading-relaxed opacity-90">Documentação automática para auditorias e certificações</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Dashboard Demo -->
+    <div class="slide gradient-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-center">
+                <div>
+                    <h1 class="text-4xl lg:text-5xl font-black mb-8 text-center lg:text-left title-shadow">
+                        <i class="fas fa-tachometer-alt mr-4 text-green-300 icon-hover"></i>
+                        DASHBOARD EM TEMPO REAL
+                    </h1>
+                    <div class="glass-card p-8 rounded-3xl">
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="metric-card text-center">
+                                <div class="stats-counter">847</div>
+                                <p class="text-xl font-semibold">Produtos Seguros</p>
+                                <div class="w-full h-3 bg-green-200 rounded-full mt-3">
+                                    <div class="w-4/5 h-full bg-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card text-center">
+                                <div class="stats-counter">-18°C</div>
+                                <p class="text-xl font-semibold">Temp. Média</p>
+                                <div class="w-full h-3 bg-blue-200 rounded-full mt-3">
+                                    <div class="w-full h-full bg-blue-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card text-center">
+                                <div class="stats-counter">0</div>
+                                <p class="text-xl font-semibold">Alertas HACCP</p>
+                                <div class="w-full h-3 bg-green-200 rounded-full mt-3">
+                                    <div class="w-full h-full bg-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="metric-card text-center">
+                                <div class="stats-counter">12</div>
+                                <p class="text-xl font-semibold">Lotes Produção</p>
+                                <div class="w-full h-3 bg-purple-200 rounded-full mt-3">
+                                    <div class="w-3/4 h-full bg-purple-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-green-500 bg-opacity-30 rounded-xl p-6 border border-green-300 border-opacity-30">
+                                <p class="text-xl font-semibold">
+                                    <i class="fas fa-check-circle mr-3 text-green-300"></i>
+                                    Sistema operando dentro dos parâmetros de segurança
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div class="bg-blue-500 bg-opacity-30 rounded-xl p-6 border border-blue-300 border-opacity-30">
+                                    <h4 class="font-bold text-lg mb-2">
+                                        <i class="fas fa-clock mr-2"></i>Última Atividade
+                                    </h4>
+                                    <p>Lote ALM-2024-123 aprovado em controle de qualidade</p>
+                                </div>
+                                <div class="bg-purple-500 bg-opacity-30 rounded-xl p-6 border border-purple-300 border-opacity-30">
+                                    <h4 class="font-bold text-lg mb-2">
+                                        <i class="fas fa-calendar-alt mr-2"></i>Próximo Vencimento
+                                    </h4>
+                                    <p>Leite UHT - Lote LT-456 vence em 5 dias</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b4c46f32-6e52-4ea5-8455-a852ada68631.png" alt="Real-time food safety dashboard showing live metrics, temperature monitoring graphs, HACCP compliance status, and production line activity with modern interface design" class="rounded-2xl shadow-2xl border-4 border-white border-opacity-20 w-full max-w-lg" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Tecnologia -->
+    <div class="slide tech-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex flex-col justify-center">
+            <h1 class="text-5xl lg:text-6xl font-black mb-12 text-center title-shadow">
+                <i class="fas fa-microchip mr-4 text-cyan-300 icon-hover"></i>
+                TECNOLOGIA
+            </h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <div>
+                    <h2 class="text-3xl font-bold mb-8">Stack Tecnológico Moderno</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-6">
+                            <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center">
+                                <i class="fab fa-html5 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">Frontend Responsivo</h3>
+                                <p class="text-gray-300 text-lg">HTML5, CSS3, JavaScript ES6+</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-mobile-alt text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">Multi-Plataforma</h3>
+                                <p class="text-gray-300 text-lg">Desktop, Tablet e Mobile</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <div class="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-qrcode text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">QR Scanner Nativo</h3>
+                                <p class="text-gray-300 text-lg">Leitura instantânea via câmera</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl">Analytics Avançado</h3>
+                                <p class="text-gray-300 text-lg">Chart.js, Relatórios PDF/Excel</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center">
+                    <div class="glass-card p-10 rounded-3xl text-center">
+                        <h2 class="text-3xl font-bold mb-8 text-cyan-300">Bibliotecas Integradas</h2>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-red-500 bg-opacity-30 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-file-pdf text-2xl text-red-300"></i>
+                                </div>
+                                <h4 class="font-bold">jsPDF</h4>
+                                <p class="text-sm opacity-80">Exportação PDF</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-500 bg-opacity-30 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-table text-2xl text-green-300"></i>
+                                </div>
+                                <h4 class="font-bold">SheetJS</h4>
+                                <p class="text-sm opacity-80">Excel/CSV</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-yellow-500 bg-opacity-30 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-chart-line text-2xl text-yellow-300"></i>
+                                </div>
+                                <h4 class="font-bold">Chart.js</h4>
+                                <p class="text-sm opacity-80">Gráficos</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-purple-500 bg-opacity-30 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-camera text-2xl text-purple-300"></i>
+                                </div>
+                                <h4 class="font-bold">Html5-QRCode</h4>
+                                <p class="text-sm opacity-80">Scanner</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Mercado -->
+    <div class="slide warning-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex flex-col justify-center">
+            <h1 class="text-5xl lg:text-6xl font-black mb-12 text-center title-shadow">
+                <i class="fas fa-globe-americas mr-4 text-yellow-300 icon-hover"></i>
+                MERCADO & OPORTUNIDADE
+            </h1>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
+                <div class="text-center feature-card p-10 rounded-2xl">
+                    <div class="stats-counter text-white">$24.5B</div>
+                    <h3 class="text-3xl font-bold mb-4">Mercado Global</h3>
+                    <p class="text-xl">Rastreabilidade alimentar até 2025</p>
+                </div>
+                <div class="text-center feature-card p-10 rounded-2xl">
+                    <div class="stats-counter text-white">15.6%</div>
+                    <h3 class="text-3xl font-bold mb-4">Crescimento Anual</h3>
+                    <p class="text-xl">CAGR do setor de food safety</p>
+                </div>
+                <div class="text-center feature-card p-10 rounded-2xl">
+                    <div class="stats-counter text-white">2.5M</div>
+                    <h3 class="text-3xl font-bold mb-4">Empresas Brasil</h3>
+                    <p class="text-xl">Indústrias alimentares potenciais</p>
+                </div>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8 text-center">Público-Alvo</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="w-20 h-20 bg-blue-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-industry text-4xl text-blue-300"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-4">Indústrias Alimentares</h3>
+                        <p class="text-lg">Grandes e médias empresas de processamento</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="w-20 h-20 bg-green-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-store text-4xl text-green-300"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-4">Distribuidores</h3>
+                        <p class="text-lg">Redes de varejo e atacado alimentar</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl text-center">
+                        <div class="w-20 h-20 bg-purple-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-certificate text-4xl text-purple-300"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-4">Certificadoras</h3>
+                        <p class="text-lg">Empresas de auditoria e compliance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Benefícios -->
+    <div class="slide success-bg flex-col justify-center items-center p-8">
+        <div class="w-full h-full flex flex-col justify-center">
+            <h1 class="text-5xl lg:text-6xl font-black mb-12 text-center title-shadow">
+                <i class="fas fa-trophy mr-4 text-yellow-300 icon-hover"></i>
+                BENEFÍCIOS COMPROVADOS
+            </h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto mb-8">
+                <div class="feature-card p-8 rounded-2xl relative group text-center">
+                    <div class="benefit-number">1</div>
+                    <div class="w-20 h-20 bg-green-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-dollar-sign text-4xl text-green-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-green-300 transition-colors">Redução de Custos</h3>
+                    <ul class="text-lg space-y-2 leading-relaxed">
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>60% menos perdas</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>45% menos auditorias</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>30% economia compliance</li>
+                    </ul>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative group text-center">
+                    <div class="benefit-number">2</div>
+                    <div class="w-20 h-20 bg-blue-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-tachometer-alt text-4xl text-blue-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-green-300 transition-colors">Eficiência Operacional</h3>
+                    <ul class="text-lg space-y-2 leading-relaxed">
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Rastreamento em segundos</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Automação de processos</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Relatórios instantâneos</li>
+                    </ul>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative group text-center">
+                    <div class="benefit-number">3</div>
+                    <div class="w-20 h-20 bg-purple-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-shield-check text-4xl text-purple-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-green-300 transition-colors">Compliance Garantido</h3>
+                    <ul class="text-lg space-y-2 leading-relaxed">
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>100% conformidade HACCP</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Auditoria automática</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Documentação digital</li>
+                    </ul>
+                </div>
+                <div class="feature-card p-8 rounded-2xl relative group text-center">
+                    <div class="benefit-number">4</div>
+                    <div class="w-20 h-20 bg-pink-500 bg-opacity-30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-heart text-4xl text-pink-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-green-300 transition-colors">Confiança do Consumidor</h3>
+                    <ul class="text-lg space-y-2 leading-relaxed">
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Transparência total</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>QR codes consumidor</li>
+                        <li class="flex items-center justify-center"><i class="fas fa-check-circle mr-3 text-green-400"></i>Marca mais confiável</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <div class="glass-card p-8 rounded-2xl inline-block">
+                    <h2 class="text-3xl font-bold mb-6 text-green-300">Resultados Comprovados</h2>
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-green-400 mb-2">98%</div>
+                            <p class="text-lg">Satisfação</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-blue-400 mb-2">24/7</div>
+                            <p class="text-lg">Monitoramento</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-purple-400 mb-2">5x</div>
+                            <p class="text-lg">Mais Rápido</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-black text-yellow-400 mb-2">Zero</div>
+                            <p class="text-lg">Recalls</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Call to Action -->
+    <div class="slide premium-gradient flex-col justify-center items-center text-center p-8">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="max-w-6xl mx-auto">
+                <div class="animate-float mb-12">
+                    <i class="fas fa-handshake text-9xl text-white mb-8 icon-hover"></i>
+                </div>
+                <h1 class="text-6xl lg:text-7xl font-black mb-8 title-shadow">VAMOS JUNTOS?</h1>
+                <p class="text-2xl lg:text-3xl mb-12 leading-relaxed max-w-4xl mx-auto">
+                    Revolucionar a segurança alimentar e construir um futuro mais seguro para todos
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-12">
+                    <div class="feature-card p-8 rounded-2xl group">
+                        <div class="w-20 h-20 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                            <i class="fas fa-envelope text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-3">Contato</h3>
+                        <p class="text-lg opacity-90">contato@easytracking.com.br</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl group">
+                        <div class="w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                            <i class="fas fa-phone text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-3">Telefone</h3>
+                        <p class="text-lg opacity-90">+55 11 9999-9999</p>
+                    </div>
+                    <div class="feature-card p-8 rounded-2xl group">
+                        <div class="w-20 h-20 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                            <i class="fas fa-calendar text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-3">Demo Gratuita</h3>
+                        <p class="text-lg opacity-90">Agende uma demonstração</p>
+                    </div>
+                </div>
+                <div class="glass-card px-12 py-6 rounded-full text-2xl font-black inline-block animate-pulse-glow">
+                    <i class="fas fa-leaf mr-3 text-green-400"></i>
+                    Easy Tracking - Segurança Alimentar Inteligente
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+        <button class="control-btn" onclick="previousSlide()" title="Slide Anterior">
+            <i class="fas fa-chevron-left text-lg"></i>
+        </button>
+        <button class="control-btn" onclick="toggleAutoPlay()" title="Auto Play" id="autoPlayBtn">
+            <i class="fas fa-play text-lg"></i>
+        </button>
+        <button class="control-btn" onclick="nextSlide()" title="Próximo Slide">
+            <i class="fas fa-chevron-right text-lg"></i>
+        </button>
+        <button class="control-btn" onclick="toggleFullscreen()" title="Tela Cheia">
+            <i class="fas fa-expand text-lg"></i>
+        </button>
+    </div>
+
+    <!-- Slide Indicator -->
+    <div class="fixed bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-3 z-50">
+        <div class="slide-dot active w-3 h-3 bg-white rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(0)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(1)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(2)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(3)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(4)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(5)"></div>
+        <div class="slide-dot w-3 h-3 bg-white bg-opacity-30 rounded-full cursor-pointer transition-all duration-300 hover:scale-125" onclick="showSlide(6)"></div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        let autoPlay = false;
+        let autoPlayInterval;
+        const slides = document.querySelectorAll('.slide');
+        const slideDots = document.querySelectorAll('.slide-dot');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            // Remove active class from current slide and dot
+            slides[currentSlide].classList.remove('active');
+            slideDots[currentSlide].classList.remove('active');
+            slideDots[currentSlide].classList.add('bg-opacity-30');
+            
+            // Calculate new slide index
+            currentSlide = (n + totalSlides) % totalSlides;
+            
+            // Add active class to new slide and dot
+            slides[currentSlide].classList.add('active');
+            slideDots[currentSlide].classList.add('active');
+            slideDots[currentSlide].classList.remove('bg-opacity-30');
+            
+            // Update slide number
+            document.getElementById('slideNumber').textContent = `${currentSlide + 1} / ${totalSlides}`;
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Add slide enter animation
+            slides[currentSlide].classList.add('slide-enter');
+            setTimeout(() => {
+                slides[currentSlide].classList.remove('slide-enter');
+            }, 800);
+
+            // Animate stats counters if on dashboard slide
+            if (currentSlide === 3) { // Dashboard slide
+                setTimeout(animateCounters, 300);
+            } else if (currentSlide === 5) { // Market slide
+                setTimeout(animateMarketCounters, 300);
+            }
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('autoPlayBtn');
+            const icon = btn.querySelector('i');
+            
+            if (autoPlay) {
+                clearInterval(autoPlayInterval);
+                autoPlay = false;
+                icon.className = 'fas fa-play text-lg';
+                btn.style.background = 'rgba(0,0,0,0.8)';
+            } else {
+                autoPlayInterval = setInterval(nextSlide, 8000);
+                autoPlay = true;
+                icon.className = 'fas fa-pause text-lg';
+                btn.style.background = 'rgba(16, 185, 129, 0.8)';
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stats-counter');
+            const targets = ['847', '-18°C', '0', '12'];
+            
+            counters.forEach((counter, index) => {
+                const target = targets[index];
+                const isTemp = target.includes('°C');
+                const number = isTemp ? parseFloat(target) : parseInt(target);
+                
+                let current = 0;
+                const increment = Math.abs(number) / 50;
+                const timer = setInterval(() => {
+                    if (isTemp) {
+                        current -= increment;
+                        if (current <= number) {
+                            current = number;
+                            clearInterval(timer);
+                        }
+                        counter.textContent = `${current.toFixed(1)}°C`;
+                    } else {
+                        current += increment;
+                        if (current >= number) {
+                            current = number;
+                            clearInterval(timer);
+                        }
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 30);
+            });
+        }
+
+        function animateMarketCounters() {
+            const counters = document.querySelectorAll('.slide:nth-child(6) .stats-counter');
+            const targets = ['$24.5B', '15.6%', '2.5M'];
+            
+            counters.forEach((counter, index) => {
+                const target = targets[index];
+                counter.textContent = target;
+                counter.style.animation = 'countUp 2s ease-out';
+            });
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case 'ArrowRight':
+                case 'Space':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'Escape':
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    if (autoPlay) {
+                        toggleAutoPlay();
+                    }
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'p':
+                case 'P':
+                    e.preventDefault();
+                    toggleAutoPlay();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    showSlide(0);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    showSlide(totalSlides - 1);
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                    e.preventDefault();
+                    const slideNum = parseInt(e.key) - 1;
+                    if (slideNum >= 0 && slideNum < totalSlides) {
+                        showSlide(slideNum);
+                    }
+                    break;
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // Only register horizontal swipes (ignore vertical scrolling)
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
+                if (diffX > 0) {
+                    nextSlide(); // Swipe left = next slide
+                } else {
+                    previousSlide(); // Swipe right = previous slide
+                }
+            }
+        });
+
+        // Mouse wheel support
+        document.addEventListener('wheel', function(e) {
+            if (Math.abs(e.deltaY) > 50) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    nextSlide();
+                } else {
+                    previousSlide();
+                }
+            }
+        }, { passive: false });
+
+        // Initialize
+        showSlide(0);
+
+        // Prevent context menu for better presentation experience
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Add resize handler for responsive adjustments
+        window.addEventListener('resize', function() {
+            // Force recalculation of dimensions
+            const activeSlide = document.querySelector('.slide.active');
+            if (activeSlide) {
+                activeSlide.style.width = '100vw';
+                activeSlide.style.height = '100vh';
+            }
+        });
+
+        // Add visibility change handler to pause auto-play when tab is not visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && autoPlay) {
+                clearInterval(autoPlayInterval);
+            } else if (!document.hidden && autoPlay) {
+                autoPlayInterval = setInterval(nextSlide, 8000);
+            }
+        });
+
+        // Prevent zoom on double tap (iOS)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        console.log('🎨 Easy Tracking Pitch - Apresentação profissional carregada!');
+        console.log('📱 Controles:');
+        console.log('  → Setas/Space: Navegar');
+        console.log('  → F: Tela cheia');
+        console.log('  → P: Auto-play');
+        console.log('  → 1-7: Ir para slide específico');
+        console.log('  → Escape: Sair da tela cheia/parar auto-play');
+    </script>
+</body>
+</html>
+
